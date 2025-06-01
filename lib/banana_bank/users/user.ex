@@ -6,26 +6,40 @@ defmodule BananaBank.Users.User do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @create_fields [:name, :email, :password, :address, :balance]
+  @update_fields [:name, :email, :address, :balance]
+
   schema "users" do
     field :name, :string
     field :email, :string
     field :password, :string, virtual: true
     field :password_hash, :string
-    field :balance, :string, default: "000"
+    # For precision, we use a string, and operations will be done with 5 decimal places
+    field :balance, :string, default: "0.00000"
     field :address, :string
 
     timestamps()
   end
 
-  def changeset(user \\ %__MODULE__{}, attrs) do
+  def changeset(attrs) do
+    %__MODULE__{}
+    |> validate_fields(attrs, @create_fields)
+    |> add_password_hash()
+  end
+
+  def changeset(user, attrs) do
     user
-    |> cast(attrs, [:name, :email, :password, :balance, :address])
-    |> validate_required([:name, :email, :password, :address])
+    |> validate_fields(attrs, @update_fields)
+  end
+
+  defp validate_fields(changeset, attrs, fields) do
+    changeset
+    |> cast(attrs, fields)
+    |> validate_required(fields)
     |> validate_format(:email, ~r/.{3,}@.{3,}\..{2,3}/)
     |> validate_format(:name, ~r/^[A-ZÀ-Ýa-zà-ÿ\s]+$/)
     |> validate_length(:name, min: 1, max: 100)
     |> validate_length(:email, min: 5, max: 100)
-    |> add_password_hash()
   end
 
   defp add_password_hash(%Ecto.Changeset{valid?: true, changes: %{password: password}} = changeset) do
