@@ -13,4 +13,12 @@ defmodule BananaBankWeb.UsersController do
       |> render(:create, user: user)
     end
   end
+
+  def show(conn, %{"id" => id}) do
+    with {:ok, %User{} = user} <- Users.get_user(id) do
+      conn
+      |> put_status(:ok)
+      |> render(:show, user: user)
+    end
+  end
 end
