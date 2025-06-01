@@ -1,4 +1,8 @@
 defmodule BananaBank.Users.User do
+  @moduledoc """
+  User schema and changeset functions.
+  """
+
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -29,4 +33,28 @@ defmodule BananaBank.Users.User do
   end
 
   defp add_password_hash(changeset), do: changeset
+end
+
+defimpl Jason.Encoder, for: BananaBank.Users.User do
+  def encode(%BananaBank.Users.User{} = user, opts) do
+    %{
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      address: user.address,
+      balance: handle_balance(user.balance)
+    }
+    |> Jason.Encode.map(opts)
+  end
+
+  defp handle_balance(balance) when is_binary(balance) do
+    case Float.parse(balance) do
+      {value, _} -> round_balance(value)
+      :error -> 0.00
+    end
+  end
+
+  defp round_balance(balance) when is_float(balance) do
+    Float.round(balance, 2)
+  end
 end
