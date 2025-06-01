@@ -3,9 +3,9 @@ defmodule BananaBank.Users do
   Context module for user operations.
   """
 
-  alias BananaBank.Users.Create
-  alias BananaBank.Users.Get
+  alias BananaBank.Users.{Create, Get, Update}
 
-  defdelegate create_user(params), to: Create, as: :call
-  defdelegate get_user(id), to: Get, as: :call
+  defdelegate create(params), to: Create, as: :call
+  defdelegate get(id), to: Get, as: :call
+  defdelegate update(id, params), to: Update, as: :call
 end
