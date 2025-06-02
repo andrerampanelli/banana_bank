@@ -37,7 +37,7 @@ defmodule BananaBank.Users.User do
     |> cast(attrs, fields)
     |> validate_required(fields)
     |> validate_format(:email, ~r/.{3,}@.{3,}\..{2,3}/)
-    |> validate_format(:name, ~r/^[A-ZÀ-Ýa-zà-ÿ\s]+$/)
+    |> validate_format(:name, ~r/^[A-ZÀ-Ýa-zà-ÿ\s'-]+$/)
     |> validate_length(:name, min: 1, max: 100)
     |> validate_length(:email, min: 5, max: 100)
   end
@@ -68,7 +68,9 @@ defimpl Jason.Encoder, for: BananaBank.Users.User do
     end
   end
 
+  defp handle_balance(nil), do: 0.00
+
   defp round_balance(balance) when is_float(balance) do
-    Float.round(balance, 2)
+    Float.floor(balance * 100) / 100
   end
 end
