@@ -6,17 +6,20 @@ defmodule BananaBank.Users.User do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @create_fields [:name, :email, :password, :address, :balance]
-  @update_fields [:name, :email, :address, :balance]
+  alias BananaBank.Accounts.Account
 
+  @create_fields [:name, :email, :password, :address]
+  @update_fields [:name, :email, :address]
+
+  @derive {Jason.Encoder, only: [:id, :name, :email, :address, :inserted_at, :updated_at]}
   schema "users" do
     field :name, :string
     field :email, :string
     field :password, :string, virtual: true
     field :password_hash, :string
-    # For precision, we use a string, and operations will be done with 5 decimal places
-    field :balance, :string, default: "0.00000"
     field :address, :string
+
+    has_one :account, Account
 
     timestamps()
   end
@@ -47,30 +50,4 @@ defmodule BananaBank.Users.User do
   end
 
   defp add_password_hash(changeset), do: changeset
-end
-
-defimpl Jason.Encoder, for: BananaBank.Users.User do
-  def encode(%BananaBank.Users.User{} = user, opts) do
-    %{
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      address: user.address,
-      balance: handle_balance(user.balance)
-    }
-    |> Jason.Encode.map(opts)
-  end
-
-  defp handle_balance(balance) when is_binary(balance) do
-    case Float.parse(balance) do
-      {value, _} -> round_balance(value)
-      :error -> 0.00
-    end
-  end
-
-  defp handle_balance(nil), do: 0.00
-
-  defp round_balance(balance) when is_float(balance) do
-    Float.floor(balance * 100) / 100
-  end
 end

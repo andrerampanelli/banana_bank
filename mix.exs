@@ -43,6 +43,7 @@ defmodule BananaBank.MixProject do
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5"},
       {:argon2_elixir, "~> 4.1"},
+      {:decimal, "~> 2.0"},
       {:credo, "~> 1.7", only: [:dev], runtime: false}
     ]
   end
